@@ -73,7 +73,7 @@ cd esp-idf
 ### 2. Récupérer le projet
 
 ```bash
-git clone https://github.com/<ton-pseudo>/cyd-os.git
+git clone https://github.com/ArizakiDev/cyd-os.git
 cd cyd-os
 ```
 
