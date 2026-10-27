@@ -7,6 +7,7 @@
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/ble_hs.h"
+#include "host/util/util.h"   /* ble_hs_util_ensure_addr() */
 
 static const char *TAG = "ble";
 static ble_dev_t *s_out;
