@@ -1,0 +1,19 @@
+menu "CYD-OS"
+
+    config CYD_WEB_TOKEN
+        string "Token du serveur web (protege l'OTA et la LED)"
+        default "changeme"
+        help
+            CHANGE-LE ! Il est demande dans la page web avant un envoi OTA.
+
+    config CYD_MQTT_URI
+        string "URI du broker MQTT (vide = MQTT desactive)"
+        default ""
+        help
+            Exemple : mqtt://192.168.1.50:1883
+
+    config CYD_MQTT_PREFIX
+        string "Prefixe des topics MQTT"
+        default "cyd"
+
+endmenu

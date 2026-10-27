@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CYD-OS</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;max-width:480px;margin:0 auto;padding:16px}
+h1{color:#4fc3f7}.card{background:#1e1e1e;border-radius:10px;padding:12px;margin:12px 0}
+input[type=range]{width:100%}button{background:#4fc3f7;border:0;border-radius:6px;padding:8px 14px;font-weight:600}
+td{padding:2px 10px 2px 0}
+</style></head><body>
+<h1>CYD-OS</h1>
+<div class="card"><table id="st"></table></div>
+<div class="card"><b>LED RGB</b>
+ <input type="range" id="r" min="0" max="255" value="0" oninput="led()">
+ <input type="range" id="g" min="0" max="255" value="0" oninput="led()">
+ <input type="range" id="b" min="0" max="255" value="0" oninput="led()"></div>
+<div class="card"><b>Mise a jour OTA</b><br><br>
+ <input type="file" id="f" accept=".bin"> <button onclick="ota()">Envoyer</button>
+ <pre id="o"></pre></div>
+<script>
+const $=id=>document.getElementById(id);
+let tok=localStorage.getItem('tok')||'';
+function need(){ if(!tok){ tok=prompt('Token (menuconfig > CYD-OS)')||''; localStorage.setItem('tok',tok);} }
+async function poll(){
+  try{ const j=await (await fetch('/api/status')).json();
+    $('st').innerHTML=`<tr><td>ESP-IDF</td><td>${j.idf}</td></tr>
+    <tr><td>IP</td><td>${j.ip}</td></tr><tr><td>RAM libre</td><td>${(j.heap/1024)|0} KB</td></tr>
+    <tr><td>Uptime</td><td>${j.uptime} s</td></tr><tr><td>Lumiere</td><td>${j.ldr} %</td></tr>
+    <tr><td>WiFi RSSI</td><td>${j.rssi} dBm</td></tr>`; }catch(e){}
+}
+setInterval(poll,2000); poll();
+let t=null;
+function led(){ need(); clearTimeout(t); t=setTimeout(()=>{
+  fetch(`/api/led?r=${$('r').value}&g=${$('g').value}&b=${$('b').value}`,{method:'POST',headers:{'X-Token':tok}})
+   .then(r=>{ if(r.status==401){tok='';localStorage.removeItem('tok');} }); },80); }
+async function ota(){
+  need(); const f=$('f').files[0]; if(!f){ $('o').textContent='Choisis build/cyd-os.bin'; return; }
+  $('o').textContent='Envoi en cours...';
+  try{ const r=await fetch('/ota',{method:'POST',headers:{'X-Token':tok},body:f});
+       $('o').textContent=await r.text(); if(r.status==401){tok='';localStorage.removeItem('tok');} }
+  catch(e){ $('o').textContent='Connexion perdue (normal si l\'ESP redemarre)'; }
+}
+</script></body></html>
